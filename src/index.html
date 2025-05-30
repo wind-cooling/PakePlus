@@ -1,22 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
-
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-
-            <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit">Greet</button>
-            </form>
-            <p id="greet-msg"></p>
-        </main>
-    </body>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>温度与传感器转换工具</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3V8M12 12V21M8 5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V9C16 10.1046 15.1046 11 14 11H10C8.89543 11 8 10.1046 8 9V5ZM5 14C5 12.8954 5.89543 12 7 12H17C18.1046 12 19 12.8954 19 14V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>温度与传感器转换工具</h1>
+            </div>
+            <div class="controls">
+                <button class="theme-toggle" id="theme-toggle" aria-label="切换深色模式">
+                    <svg id="sun-icon" class="theme-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg id="moon-icon" class="theme-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="sensor-tabs">
+            <button class="tab-btn active" data-type="rtd">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 4L14 14C14 15.1046 13.1046 16 12 16V16C10.8954 16 10 15.1046 10 14L10 4C10 2.89543 10.8954 2 12 2V2C13.1046 2 14 2.89543 14 4Z"></path>
+                    <path d="M12 16V20"></path>
+                    <path d="M8 20L16 20"></path>
+                </svg>
+                热电阻
+            </button>
+            <button class="tab-btn" data-type="tc">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9.5L3 11V13L6 14.5"></path>
+                    <path d="M18 9.5L21 11V13L18 14.5"></path>
+                    <path d="M12 2C7.58172 2 4 5.58172 4 10V14C4 18.4183 7.58172 22 12 22C16.4183 22 20 18.4183 20 14V10C20 5.58172 16.4183 2 12 2Z"></path>
+                </svg>
+                热电偶
+            </button>
+        </div>
+        
+        <div class="converter">
+            <div class="temperature-section">
+                <div class="section-header">
+                    <h2>温度 (℃)</h2>
+                    <span class="badge" id="temp-range-badge"></span>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="temperature" placeholder="输入温度..." step="0.01">
+                    <span class="unit">℃</span>
+                </div>
+                <div class="error" id="temp-error"></div>
+                <div class="range-info" id="temp-range-info"></div>
+                <div class="visualization">
+                    <div class="visualization-header">
+                        <h3>温度可视化</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sensor-section">
+                <div id="rtd-section" class="sensor-type-section active">
+                    <div class="section-header">
+                        <h2>热电阻值</h2>
+                    </div>
+                    <div class="select-group">
+                        <label for="rtd-type">热电阻类型:</label>
+                        <select id="rtd-type">
+                            <option value="PT100">PT100</option>
+                            <option value="PT1000">PT1000</option>
+                            <option value="Cu50">Cu50</option>
+                            <option value="Ni120">Ni120</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="rtd-value" placeholder="输入电阻值..." step="0.01">
+                        <span class="unit">Ω</span>
+                    </div>
+                    <div class="error" id="rtd-error"></div>
+                    <div class="data-card">
+                        <div class="data-card-item">
+                            <span class="data-label">电阻精度</span>
+                            <span class="data-value" id="rtd-precision">±0.1%</span>
+                        </div>
+                        <div class="data-card-item">
+                            <span class="data-label">电阻系数</span>
+                            <span class="data-value" id="rtd-coefficient">α = 0.00385</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tc-section" class="sensor-type-section">
+                    <div class="section-header">
+                        <h2>热电偶值</h2>
+                    </div>
+                    <div class="select-group">
+                        <label for="tc-type">热电偶类型:</label>
+                        <select id="tc-type">
+                            <option value="K">K型 (镍铬-镍硅)</option>
+                            <option value="J">J型 (铁-康铜)</option>
+                            <option value="T">T型 (铜-康铜)</option>
+                            <option value="E">E型 (镍铬-康铜)</option>
+                            <option value="N">N型 (镍硅镁-镍硅)</option>
+                            <option value="R">R型 (铂铑13%-铂)</option>
+                            <option value="S">S型 (铂铑10%-铂)</option>
+                            <option value="B">B型 (铂铑30%-铂铑6%)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="tc-value" placeholder="输入电动势值..." step="0.01">
+                        <span class="unit">mV</span>
+                    </div>
+                    <div class="error" id="tc-error"></div>
+                    <div class="data-card">
+                        <div class="data-card-item">
+                            <span class="data-label">灵敏度</span>
+                            <span class="data-value" id="tc-sensitivity">41 µV/°C</span>
+                        </div>
+                        <div class="data-card-item">
+                            <span class="data-label">精度</span>
+                            <span class="data-value" id="tc-accuracy">±1.5°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info">
+            <div class="info-header">
+                <h3>关于温度传感器</h3>
+            </div>
+            <div id="rtd-info" class="sensor-info active">
+                <p><strong>热电阻</strong>是利用金属导体的电阻值随温度变化的特性来测量温度的传感器。常见类型：</p>
+                <ul>
+                    <li><strong>PT100/PT1000</strong>：铂电阻，分别在0℃时具有100Ω和1000Ω的电阻值(IEC 60751标准)</li>
+                    <li><strong>Cu50</strong>：铜电阻，在0℃时具有50Ω的电阻值(GB/T 17621-1998标准)</li>
+                    <li><strong>Ni120</strong>：镍电阻，在0℃时具有120Ω的电阻值(DIN 43760标准)</li>
+                </ul>
+            </div>
+            <div id="tc-info" class="sensor-info">
+                <p><strong>热电偶</strong>是利用两种不同金属连接处产生的热电动势来测量温度的传感器。常见类型(IEC 60584标准)：</p>
+                <ul>
+                    <li><strong>K型</strong>：镍铬-镍硅，测温范围-270℃至1372℃</li>
+                    <li><strong>J型</strong>：铁-康铜，测温范围-210℃至1200℃</li>
+                    <li><strong>T型</strong>：铜-康铜，测温范围-270℃至400℃</li>
+                    <li><strong>E型</strong>：镍铬-康铜，测温范围-270℃至1000℃</li>
+                    <li><strong>N型</strong>：镍硅镁-镍硅，测温范围-270℃至1300℃</li>
+                    <li><strong>R型</strong>：铂铑13%-铂，测温范围-50℃至1768℃</li>
+                    <li><strong>S型</strong>：铂铑10%-铂，测温范围-50℃至1768℃</li>
+                    <li><strong>B型</strong>：铂铑30%-铂铑6%，测温范围0℃至1820℃</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 史志猛</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
 </html>
